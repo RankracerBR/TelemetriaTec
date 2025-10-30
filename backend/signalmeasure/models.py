@@ -1,0 +1,9 @@
+from django.db import models
+from users.models import User
+
+
+class SignalMeasure(models.Model):
+    user = models.ForeignKey(User)
+    amplitude = ...
+    frequency = ...
+    period = ...
