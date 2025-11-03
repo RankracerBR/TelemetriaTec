@@ -1,8 +1,8 @@
-from rest_framework.routers import DefaultRouter
-from .views import SignalMeasureViewSet
+from django.urls import path
+from .views import SignalAPIMethods
 
 
-router = DefaultRouter()
-router.register(r'signal-measures', SignalMeasureViewSet, basename='signalmeasure')
-
-urlpatterns = router.urls
+urlpatterns = [
+    path('measure/', SignalAPIMethods.measure_signal, name='measure-signal'),
+    path('history/', SignalAPIMethods.signal_history, name='signal-history'),
+]

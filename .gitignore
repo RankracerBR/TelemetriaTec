@@ -1,5 +1,4 @@
 ## FRONT-END
-
 # Logs
 logs
 *.log
@@ -27,5 +26,34 @@ dist-ssr
 
 
 # BACK-END
-venv
-.env
+# Arquivos e diretórios do Python
+__pycache__/
+*.py[cod]
+*.so
+# Arquivos de ambiente virtual
+env
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+# Arquivos de log e banco de dados local
+*.log
+db.sqlite3
+db.sqlite3-journal
+# Configurações locais e arquivos sensíveis
+local_settings.py
+# Diretórios gerados pelo Django
+/media/
+staticfiles/
+# Cache do pytest e tox
+pytest_cache/
+tox/
+# Checkpoints do Jupyter Notebook
+ipynb_checkpoints/
+# Documentação gerada pelo Sphinx
+docs/_build/
+# Outros arquivos temporários ou específicos do sistema operacional
+*.DS_Store
+*.AppleDouble
+*.swp
