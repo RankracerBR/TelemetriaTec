@@ -3,7 +3,7 @@ from users.models import User
 
 
 class SignalMeasure(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     amplitude = models.FloatField("Potência do sinal") # dBm
     frequency = models.FloatField(help_text="Frequência em MHz ou GHZ", null=True, blank=True) # 2.4 GHZ or 5GHz
     period = models.FloatField(help_text="Período de medição ou latência em segundos",

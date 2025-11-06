@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "5432:5434"
+      - "${DB_PORT}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     env_file:
@@ -18,10 +18,11 @@ services:
       context: .
       dockerfile: Dockerfile
     command: python manage.py runserver 0.0.0.0:8000
+    working_dir: /app
     volumes:
-      - .:/app
+      - ./backend:/app
     ports:
-      - "8000:8003"
+      - "${DJANGO_PORT}:8000" # Host:Container
     env_file:
       - .env
     depends_on:
