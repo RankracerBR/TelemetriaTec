@@ -8,9 +8,11 @@ class SignalStrength:
     Simple class with methods to measure the
     signal
     """
-    def wifi_strength(interface, duration, pkt):
-        measurements = []
-        
+    
+    measurements = []
+    
+    @staticmethod
+    def _packet_handler(pkt):
         if pkt.haslayer(Dot11Beacon):
             try:
                 if hasattr(pkt, 'dBm_AntSignal'):
@@ -18,9 +20,15 @@ class SignalStrength:
                 else:
                     extra = pkt.notdecoded
                     rssi = -(256 - ord(extra[-4:-3]))
-                measurements.append(rssi)
+                SignalStrength.measurements.append(rssi)
             except:
-                measurements.append(-100)
+                SignalStrength.measurements.append(-100)
     
-        sniff(ifaces=interface, prn=SignalStrength.wifi_strength, timeout=duration)
-        return sum(measurements) / len(measurements) if measurements else -100
+    @classmethod
+    def wifi_strength(cls, interface, duration):
+        cls.measurements = []
+        
+        sniff(iface=interface, prn=cls._packet_handler, timeout=duration)
+        
+        # Return average
+        return sum(cls.measurements) / len(cls.measurements) if cls.measurements else -100

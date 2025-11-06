@@ -3,6 +3,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework.decorators import action
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
+from django.utils.decorators import method_decorator
 
 from .models import SignalMeasure
 from .serializers import SignalMeasureSerializer
@@ -12,9 +14,11 @@ import time
 
 class SignalAPIMethods(ViewSet):
     # permission_classes = [permissions.IsAuthenticated]
-    
-    @action(detail=True, methods=['post'])
-    def measure_signal(request):
+
+    @method_decorator(csrf_exempt, name='dispatch')
+    @action(detail=False, methods=['post'])
+    # @csrf_protect
+    def measure_signal(self, request):
         duration = float(request.data.get('duration', 5))
         interface = request.data.get('interface', 'wlan0')
         
@@ -44,7 +48,7 @@ class SignalAPIMethods(ViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     @action(detail=True, methods=['get'])
-    def signal_history(request):
+    def signal_history(self, request):
         """
         Get recent signal measurements for the current user
         """
