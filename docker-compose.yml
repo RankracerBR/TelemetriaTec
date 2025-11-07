@@ -23,6 +23,7 @@ services:
       - ./backend:/app
     ports:
       - "${DJANGO_PORT}:8000" # Host:Container
+    privileged: true
     cap_add:
       - NET_ADMIN
       - NET_RAW

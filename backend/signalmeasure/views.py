@@ -20,16 +20,20 @@ class SignalAPIMethods(ViewSet):
     # @csrf_protect
     def measure_signal(self, request):
         duration = float(request.data.get('duration', 5))
-        interface = request.data.get('interface', 'wlan0')
+        interface = request.data.get('interface', 'eth0')
         
         start_time = time.time()
-        amplitude = SignalStrength.wifi_strength(interface, duration)
+        result = SignalStrength.wifi_strength(interface, duration)
+        if isinstance(result, tuple):
+            amplitude, frequency = result
+        else:
+            return Response({'error': str(result)}, status=status.HTTP_400_BAD_REQUEST)
         end_time = time.time()
-        
         period = end_time - start_time
         
         measurement_data: dict = {
             'amplitude': amplitude,
+            'frequency': frequency,
             'period': period, 
             'user': request.user.id
         }
@@ -41,6 +45,7 @@ class SignalAPIMethods(ViewSet):
             return Response({
                 'status': 'success',
                 'amplitude': f'{amplitude:.2f} dBm',
+                'frequency': f'{frequency:.2f}',
                 'period': f'{period:.2f} seconds',
                 'data': serializer.data
             }, status=status.HTTP_201_CREATED)
