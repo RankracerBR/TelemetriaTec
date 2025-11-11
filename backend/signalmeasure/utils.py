@@ -3,6 +3,7 @@ import subprocess
 from scapy.all import *
 from scapy.layers.dot11 import Dot11Beacon, RadioTap
 from scapy.sendrecv import sniff
+from scapy.plist import PacketList
 
 # TODO: REMOVE PRINTS
 
@@ -12,8 +13,8 @@ class PacketManager:
     class to manage packets and generate
     the informations about the signal
     """
-
     measurements = []
+    packets = []
     rssi = None  # Received Signal Strength Indicator
     frequency = None
 
@@ -32,6 +33,7 @@ class PacketManager:
                 frequency = cls._extract_frequency_from_packet(pkt)
 
             cls.measurements.append((rssi, frequency))
+            cls.packets.append(pkt)
 
         except Exception as e:
             print(f"ERROR: {e}")
@@ -135,7 +137,9 @@ class SignalStrength(PacketManager):
             else:
                 common_frequency = None
 
+            pkts = PacketList(cls.packets)
             print(f"Captured: {len(cls.measurements)} packets")
+            print(pkts.summary())
             print(f"Average: {avg_amplitude} dBm at {common_frequency} Mhz")
 
             return avg_amplitude, common_frequency

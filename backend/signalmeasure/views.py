@@ -45,8 +45,8 @@ class SignalAPIMethods(ViewSet):
             return Response(
                 {
                     "status": "success",
-                    "amplitude": f"{amplitude:.2f} dBm",
-                    "frequency": f"{frequency:.2f}",
+                    "amplitude": f"{amplitude} dBm" if amplitude is not None else None,
+                    "frequency": f"{frequency} MHz" if frequency is not None else None,
                     "period": f"{period:.2f} seconds",
                     "data": serializer.data,
                 },
