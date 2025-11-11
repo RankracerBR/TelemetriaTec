@@ -9,24 +9,52 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('users', '0001_initial'),
+        ("users", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='SignalMeasure',
+            name="SignalMeasure",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('amplitude', models.FloatField(verbose_name='Potência do sinal')),
-                ('frequency', models.FloatField(blank=True, help_text='Frequência em MHz ou GHZ', null=True)),
-                ('period', models.FloatField(blank=True, help_text='Período de medição ou latência em segundos', null=True)),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('ssid', models.CharField(blank=True, max_length=100, null=True)),
-                ('bssid', models.CharField(blank=True, max_length=17, null=True)),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='users.user')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("amplitude", models.FloatField(verbose_name="Potência do sinal")),
+                (
+                    "frequency",
+                    models.FloatField(
+                        blank=True, help_text="Frequência em MHz ou GHZ", null=True
+                    ),
+                ),
+                (
+                    "period",
+                    models.FloatField(
+                        blank=True,
+                        help_text="Período de medição ou latência em segundos",
+                        null=True,
+                    ),
+                ),
+                ("timestamp", models.DateTimeField(auto_now_add=True)),
+                ("ssid", models.CharField(blank=True, max_length=100, null=True)),
+                ("bssid", models.CharField(blank=True, max_length=17, null=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="users.user",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-timestamp'],
+                "ordering": ["-timestamp"],
             },
         ),
     ]

@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('signalmeasure', '0001_initial'),
+        ("signalmeasure", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='signalmeasure',
-            name='amplitude',
-            field=models.FloatField(blank=True, null=True, verbose_name='Potência do sinal'),
+            model_name="signalmeasure",
+            name="amplitude",
+            field=models.FloatField(
+                blank=True, null=True, verbose_name="Potência do sinal"
+            ),
         ),
     ]

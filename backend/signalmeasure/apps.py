@@ -2,5 +2,5 @@ from django.apps import AppConfig
 
 
 class SignalmeasureConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'signalmeasure'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "signalmeasure"
