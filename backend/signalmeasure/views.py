@@ -2,64 +2,83 @@ import time
 
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.shortcuts import get_list_or_404
+
 from rest_framework import authentication, permissions, status
 from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
-from rest_framework.viewsets import ViewSet
+from rest_framework import viewsets
 
-from .models import SignalMeasure
-from .serializers import SignalMeasureSerializer
-from .utils import SignalStrength
+from .models import SignalCableMeasure, SignalMeasure
+from .serializers import SignalMeasureSerializer, SignalCableMeasureSerializer
+from .utils import SignalMeasureCableUtils, SignalMeasureUtils
 
 
-class SignalAPIMethods(ViewSet):
+class SignalAPICable(viewsets.GenericViewSet):
     # permission_classes = [permissions.IsAuthenticated]
+    signal_cable_utils = SignalMeasureCableUtils
+    signal_cable_serializer = SignalCableMeasureSerializer
 
-    @method_decorator(csrf_exempt, name="dispatch")
+    @method_decorator(csrf_exempt, name="dispatch") # TODO: REMOVE THIS LATER
     @action(detail=False, methods=["post"])
     # @csrf_protect
     def measure_signal(self, request):
-        duration = float(request.data.get("duration", 5))
-        interface = request.data.get("interface", "eth0")
+        latency = request.data.get('L', request.query_params.get('L'))
+        transfer_rate = request.data.get('TR', request.query_params.get('TR'))
+        connection_type = request.data.get('CT', request.query_params.get('CR'))
 
-        start_time = time.time()
-        result = SignalStrength.wifi_strength(interface, duration)
-        if isinstance(result, tuple):
-            amplitude, frequency = result
-        else:
-            return Response({"error": str(result)}, status=status.HTTP_400_BAD_REQUEST)
-        end_time = time.time()
-        period = end_time - start_time
+        latency_bool = eval(latency)
+        transfer_rate_bool = eval(transfer_rate)
+        connection_type_bool = eval(connection_type)
 
-        measurement_data: dict = {
-            "amplitude": amplitude,
-            "frequency": frequency,
-            "period": period,
-            "user": request.user.id,
-        }
+        data = {}
 
-        serializer = SignalMeasureSerializer(data=measurement_data)
+        if latency_bool:
+            data.update(self.signal_cable_utils.measure_latency())
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response(
-                {
-                    "status": "success",
-                    "amplitude": f"{amplitude} dBm" if amplitude is not None else None,
-                    "frequency": f"{frequency} MHz" if frequency is not None else None,
-                    "period": f"{period:.2f} seconds",
-                    "data": serializer.data,
-                },
-                status=status.HTTP_201_CREATED,
-            )
+        if transfer_rate_bool:
+            data.update(self.signal_cable_utils.measure_transfer_rate())
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if connection_type_bool:
+            data.update(self.signal_cable_utils.get_connection_type())
+
+        if not data:
+            return Response({"detail": "Erro no L ou TR"}, status=400)
+
+        serializer = self.signal_cable_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=201)
 
     @action(detail=True, methods=["get"])
-    def signal_history(self, request):
+    def signal_history_cable(self, request, pk=None):
         """
-        Get recent signal measurements for the current user
+        Get all signal cable measurements for the current user
         """
-        measurements = SignalMeasure.objects.filter(user=request.user)[:10]
-        serializer = SignalMeasureSerializer(measurements, many=True)
+        queryset = SignalCableMeasure.objects.all()
+        signal_cable = get_list_or_404(queryset, pk=pk)
+        serializer = self.signal_cable_serializer(signal_cable)
+
         return Response(serializer.data)
+        
+
+class SignalMeasureAPI(viewsets.GenericViewSet):
+    signal_utils = SignalMeasureUtils
+    signal_serializer = SignalMeasureSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        
+        latency = self.request.query_params.get('L')
+        transfer_rate = self.request.query_params.get('TR')
+        
+        latency_bool = eval(latency)
+        transfer_rate_bool = eval(transfer_rate)
+
+    @action(detail=True, methods=["get"])
+    def signal_history_cable(self, request):
+        """
+        Get recent signal cable measurements for the current user
+        """
+        ...
