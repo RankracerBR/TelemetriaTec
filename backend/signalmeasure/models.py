@@ -4,9 +4,10 @@ from django.db import models
 class SignalCableMeasure(models.Model):
     latency = models.FloatField(verbose_name="Medição latência(Cabeada)")
     transfer_rate = models.FloatField(
-        verbose_name="Taxa de transferência(Cabeada)"
+        verbose_name="Taxa de transferência(Cabeada)",
+        blank=True, null=True
     )
-    connection_type = models.CharField(verbose_name="Tipo Conexão")
+    connection_type = models.CharField(verbose_name="Tipo Conexão", blank=True, null=True)
     timestamp = models.DateField(verbose_name="Horario do teste", auto_now=True)
 
 

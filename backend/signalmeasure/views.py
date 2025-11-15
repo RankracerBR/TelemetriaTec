@@ -16,12 +16,84 @@ from .utils import SignalMeasureCableUtils, SignalMeasureUtils
 
 class SignalAPICable(viewsets.GenericViewSet):
     # permission_classes = [permissions.IsAuthenticated]
+    
     signal_cable_utils = SignalMeasureCableUtils
     signal_cable_serializer = SignalCableMeasureSerializer
 
     @method_decorator(csrf_exempt, name="dispatch") # TODO: REMOVE THIS LATER
     @action(detail=False, methods=["post"])
     # @csrf_protect
+    def measure_signal(self, request):
+        """
+        Medições para conexão CABEADA
+        """
+        # Método SEGURO para converter parâmetros booleanos
+        def safe_bool_convert(value):
+            if value is None:
+                return False
+            if isinstance(value, bool):
+                return value
+            if isinstance(value, str):
+                return value.lower() in ['true', '1', 'yes', 'y', 't']
+            return bool(value)
+
+        # Obtém os parâmetros de forma segura
+        latency_param = request.data.get('L') or request.query_params.get('L')
+        transfer_rate_param = request.data.get('TR') or request.query_params.get('TR')
+        connection_type_param = request.data.get('CT') or request.query_params.get('CT')  # Corrigido: era 'CR'
+
+        # Converte para booleanos de forma segura
+        latency_bool = safe_bool_convert(latency_param)
+        transfer_rate_bool = safe_bool_convert(transfer_rate_param)
+        connection_type_bool = safe_bool_convert(connection_type_param)
+
+        data = {}
+        utils = self.signal_cable_utils()
+
+        # Coleta apenas as medições solicitadas
+        if latency_bool:
+            latency_value, _ = utils.measure_latency()
+            if latency_value is not None:
+                data['latency'] = latency_value
+
+        if transfer_rate_bool:
+            download_speed, upload_speed = utils.measure_transfer_rate()
+            if download_speed is not None:
+                data['transfer_rate'] = download_speed
+
+        if connection_type_bool:
+            connection_type_value = utils.get_connection_type()
+            if connection_type_value:
+                data['connection_type'] = connection_type_value
+
+        if not data:
+            return Response({"detail": "Nenhuma medição foi solicitada ou todas falharam"}, status=400)
+
+        serializer = self.signal_cable_serializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        else:
+            return Response(serializer.errors, status=400)
+
+    @action(detail=True, methods=["get"])
+    def signal_history_cable(self, request, pk=None):
+        """
+        Get all signal cable measurements for the current user
+        """
+        queryset = SignalCableMeasure.objects.all()
+        signal_cable = get_list_or_404(queryset, pk=pk)
+        serializer = self.signal_cable_serializer(signal_cable)
+
+        return Response(serializer.data)
+
+
+class SignalMeasureAPI(viewsets.GenericViewSet):
+    # permission_classes = [permissions.IsAuthenticated]
+
+    signal_utils = SignalMeasureUtils
+    signal_serializer = SignalMeasureSerializer
+
     def measure_signal(self, request):
         latency = request.data.get('L', request.query_params.get('L'))
         transfer_rate = request.data.get('TR', request.query_params.get('TR'))
@@ -34,18 +106,18 @@ class SignalAPICable(viewsets.GenericViewSet):
         data = {}
 
         if latency_bool:
-            data.update(self.signal_cable_utils.measure_latency())
+            data.update(self.signal_utils.measure_latency())
 
         if transfer_rate_bool:
-            data.update(self.signal_cable_utils.measure_transfer_rate())
+            data.update(self.signal_utils.measure_transfer_rate())
 
         if connection_type_bool:
-            data.update(self.signal_cable_utils.get_connection_type())
+            data.update(self.signal_utils.get_connection_type())
 
         if not data:
-            return Response({"detail": "Erro no L ou TR"}, status=400)
+            return Response({"detail": "Erro no L, TR ou CT"}, status=400)
 
-        serializer = self.signal_cable_serializer(data=data)
+        serializer = self.signal_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
@@ -54,31 +126,10 @@ class SignalAPICable(viewsets.GenericViewSet):
     @action(detail=True, methods=["get"])
     def signal_history_cable(self, request, pk=None):
         """
-        Get all signal cable measurements for the current user
+        Get recent signal measurements for the current user
         """
-        queryset = SignalCableMeasure.objects.all()
+        queryset = SignalMeasure.objects.all()
         signal_cable = get_list_or_404(queryset, pk=pk)
-        serializer = self.signal_cable_serializer(signal_cable)
+        serializer = self.signal_serializer(signal_cable)
 
         return Response(serializer.data)
-        
-
-class SignalMeasureAPI(viewsets.GenericViewSet):
-    signal_utils = SignalMeasureUtils
-    signal_serializer = SignalMeasureSerializer
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-        
-        latency = self.request.query_params.get('L')
-        transfer_rate = self.request.query_params.get('TR')
-        
-        latency_bool = eval(latency)
-        transfer_rate_bool = eval(transfer_rate)
-
-    @action(detail=True, methods=["get"])
-    def signal_history_cable(self, request):
-        """
-        Get recent signal cable measurements for the current user
-        """
-        ...

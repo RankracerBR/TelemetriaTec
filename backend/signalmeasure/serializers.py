@@ -6,12 +6,12 @@ from .models import SignalMeasure, SignalCableMeasure
 class SignalMeasureSerializer(serializers.ModelSerializer):
     class Meta:
         model = SignalMeasure
-        fields = ["id", "amplitude", "frequency", "period", "timestamp"]
+        fields = '__all__'
         read_only_fields = ["id", "timestamp"]
 
 
 class SignalCableMeasureSerializer(serializers.ModelSerializer):
     class Meta:
         model = SignalCableMeasure
-        field = ["id", "latency", "transfer_rate", "connection_type", "timestamp"]
+        fields = '__all__'
         read_only_fields = ["id", "timestamp"]

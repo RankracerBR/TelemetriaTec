@@ -1,5 +1,5 @@
 from django.db import models
-from signalmeasure.models import SignalMeasure, SignalMeasureCable
+from signalmeasure.models import SignalMeasure, SignalCableMeasure
 
 
 class User(models.Model):
@@ -8,7 +8,7 @@ class User(models.Model):
         SignalMeasure, on_delete=models.CASCADE, null=True, blank=True
     )
     signal_measure_cable = models.ForeignKey(
-        SignalMeasureCable, on_delete=models.DO_NOTHING, null=True, black=True
+        SignalCableMeasure, on_delete=models.DO_NOTHING, null=True, blank=True
     )
     last_name = models.CharField(max_length=255)
     email = models.EmailField()
