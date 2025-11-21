@@ -25,41 +25,35 @@ class SignalAPICable(viewsets.GenericViewSet):
     # @csrf_protect
     def measure_signal(self, request):
         """
-        Medições para conexão CABEADA
+        Measures for cable connection
         """
-        # Método SEGURO para converter parâmetros booleanos
-        def safe_bool_convert(value):
-            if value is None:
-                return False
-            if isinstance(value, bool):
-                return value
-            if isinstance(value, str):
-                return value.lower() in ['true', '1', 'yes', 'y', 't']
-            return bool(value)
 
-        # Obtém os parâmetros de forma segura
         latency_param = request.data.get('L') or request.query_params.get('L')
-        transfer_rate_param = request.data.get('TR') or request.query_params.get('TR')
-        connection_type_param = request.data.get('CT') or request.query_params.get('CT')  # Corrigido: era 'CR'
+        transfer_rate_download_param = request.data.get('TRD') or request.query_params.get('TRD')
+        transfer_rate_upload_param = request.data.get('TRU') or request.query_params.get('TRU')
+        connection_type_param = request.data.get('CT') or request.query_params.get('CT')
 
-        # Converte para booleanos de forma segura
         latency_bool = safe_bool_convert(latency_param)
-        transfer_rate_bool = safe_bool_convert(transfer_rate_param)
+        transfer_rate_download_bool = safe_bool_convert(transfer_rate_download_param)
+        transfer_rate_upload_bool = safe_bool_convert(transfer_rate_upload_param)
         connection_type_bool = safe_bool_convert(connection_type_param)
 
         data = {}
         utils = self.signal_cable_utils()
 
-        # Coleta apenas as medições solicitadas
         if latency_bool:
             latency_value, _ = utils.measure_latency()
             if latency_value is not None:
                 data['latency'] = latency_value
 
-        if transfer_rate_bool:
+        if transfer_rate_download_bool or transfer_rate_upload_bool:
             download_speed, upload_speed = utils.measure_transfer_rate()
-            if download_speed is not None:
-                data['transfer_rate'] = download_speed
+        
+            if transfer_rate_download_bool and download_speed is not None:
+                data['transfer_rate_download'] = download_speed
+            
+            if transfer_rate_upload_bool and upload_speed is not None:
+                data['transfer_rate_upload'] = upload_speed
 
         if connection_type_bool:
             connection_type_value = utils.get_connection_type()
@@ -133,3 +127,13 @@ class SignalMeasureAPI(viewsets.GenericViewSet):
         serializer = self.signal_serializer(signal_cable)
 
         return Response(serializer.data)
+
+
+def safe_bool_convert(value):
+    if value is None:
+        return False
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.lower() in ['true', '1', 'yes', 'y', 't']
+    return bool(value)

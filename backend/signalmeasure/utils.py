@@ -36,11 +36,25 @@ class ConnectionDetails:
 
     def measure_transfer_rate(self) -> Tuple[Optional[float], Optional[float]]:
         st = speedtest.Speedtest()
-        st.get_best_server()
-        download_speed = st.download() / 10**6
-        upload_speed = st.upload() / 10**6
-
-        return download_speed, upload_speed
+        
+        # Encontra o melhor servidor
+        server = st.get_best_server()
+        print(f"Testando contra: {server['name']} - {server['sponsor']}") # TODO: REMOVE PRINTS
+        
+        # Mede download e upload
+        print("Medindo download...")
+        download_bps = st.download()
+        
+        print("Medindo upload...")
+        upload_bps = st.upload()
+        
+        # Converte para Mbps
+        download_mbps = download_bps / 1_000_000
+        upload_mbps = upload_bps / 1_000_000
+        
+        print(f"Resultado: Download={download_mbps:.2f} Mbps, Upload={upload_mbps:.2f} Mbps")
+        
+        return download_mbps, upload_mbps
 
     def get_connection_type(self) -> str:
         gateways = self.gateway
@@ -66,9 +80,12 @@ class SignalMeasureCableUtils(ConnectionDetails):
         if latency is not None:
             data['latency'] = latency
         
-        download_speed, upload_speed = self.measure_transfer_rate()
+        download_speed= self.measure_transfer_rate()
+        upload_speed = self.measure_transfer_rate()
         if download_speed is not None:
             data['transfer_rate(download)'] = download_speed
+            
+        if upload_speed is not None:
             data['transfer_rate(upload)'] = upload_speed
 
         connection_type = self.get_connection_type()

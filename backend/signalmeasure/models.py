@@ -3,8 +3,14 @@ from django.db import models
 
 class SignalCableMeasure(models.Model):
     latency = models.FloatField(verbose_name="Medição latência(Cabeada)")
-    transfer_rate = models.FloatField(
-        verbose_name="Taxa de transferência(Cabeada)",
+    transfer_rate_download = models.FloatField(
+        verbose_name="Taxa de transferência download(Cabeada)",
+        help_text="Taxa de transferência download(Cabeada)",
+        blank=True, null=True
+    )
+    transfer_rate_upload = models.FloatField(
+        verbose_name="Taxa de transferência upload(Cabeada)",
+        help_text="Taxa de transferência upload(Cabeada)",
         blank=True, null=True
     )
     connection_type = models.CharField(verbose_name="Tipo Conexão", blank=True, null=True)
@@ -27,9 +33,13 @@ class SignalMeasure(models.Model):
     latency = models.FloatField(
         verbose_name="Latência", help_text="Medição da latência(Não cabeada)"
     )
-    transfer_rate = models.FloatField(
-        verbose_name="Taxa de transferência", 
-        help_text="Taxa de transferência(Não cabeada)"
+    transfer_rate_download = models.FloatField(
+        verbose_name="Taxa de transferência download", 
+        help_text="Taxa de transferência download(Não cabeada)"
+    )
+    transfer_rate_upload = models.FloatField(
+        verbose_name="Taxa de transferência upload",
+        help_text="Taxa de transferência upload(Não cabeada)"
     )
     ssid = models.CharField(
         verbose_name="SSID", max_length=100, blank=True, null=True
