@@ -6,6 +6,16 @@
 # Projeto feito para analisar e descobrir possiveis causas de interferências na transmissão do sinal
 # Aqui vai um manual de como utilizar essa aplicação localmente
 
+# Tecnologias utilizadas:
+
+-Python(Django, Django-Rest)
+
+-Docker, Docker-Compose, MakeFile, pre-commit
+
+-Javascript(React)
+
+-PostgreSQL
+
 ## Passo 1:
 ### Tenha o python e git já instalado na sua máquina
 ### em seguida clone o repositório
