@@ -1,16 +1,14 @@
 import time
 
+from django.shortcuts import get_list_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
-from django.shortcuts import get_list_or_404
-
-from rest_framework import authentication, permissions, status
+from rest_framework import authentication, permissions, status, viewsets
 from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
-from rest_framework import viewsets
 
 from .models import SignalCableMeasure, SignalMeasure
-from .serializers import SignalMeasureSerializer, SignalCableMeasureSerializer
+from .serializers import SignalCableMeasureSerializer, SignalMeasureSerializer
 from .utils import SignalMeasureCableUtils, SignalMeasureUtils
 
 
@@ -51,7 +49,6 @@ class SignalAPICable(viewsets.GenericViewSet):
         
             if transfer_rate_download_bool and download_speed is not None:
                 data['transfer_rate_download'] = download_speed
-            
             if transfer_rate_upload_bool and upload_speed is not None:
                 data['transfer_rate_upload'] = upload_speed
 
@@ -70,15 +67,16 @@ class SignalAPICable(viewsets.GenericViewSet):
         else:
             return Response(serializer.errors, status=400)
 
-    @action(detail=True, methods=["get"])
-    def signal_history_cable(self, request, pk=None):
+    @method_decorator(csrf_exempt, name="dispatch")
+    @action(detail=False, methods=["get"])
+    def signal_history_cable(self, request):
         """
         Get all signal cable measurements for the current user
         """
-        queryset = SignalCableMeasure.objects.all()
-        signal_cable = get_list_or_404(queryset, pk=pk)
-        serializer = self.signal_cable_serializer(signal_cable)
+        queryset = SignalCableMeasure.objects.all().order_by("-timestamp")
 
+        signal_cables = get_list_or_404(queryset)
+        serializer = self.signal_cable_serializer(signal_cables, many=True)
         return Response(serializer.data)
 
 
@@ -101,10 +99,8 @@ class SignalMeasureAPI(viewsets.GenericViewSet):
 
         if latency_bool:
             data.update(self.signal_utils.measure_latency())
-
         if transfer_rate_bool:
             data.update(self.signal_utils.measure_transfer_rate())
-
         if connection_type_bool:
             data.update(self.signal_utils.get_connection_type())
 

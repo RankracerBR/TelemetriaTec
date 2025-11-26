@@ -1,5 +1,6 @@
+from django.contrib.auth.hashers import check_password, make_password
 from django.db import models
-from signalmeasure.models import SignalMeasure, SignalCableMeasure
+from signalmeasure.models import SignalCableMeasure, SignalMeasure
 
 
 class User(models.Model):
@@ -12,5 +13,12 @@ class User(models.Model):
     )
     last_name = models.CharField(max_length=255)
     email = models.EmailField()
-    password = models.CharField()
+    password = models.CharField(max_length=128)
     # user_photo = models.ImageField()
+    
+    def set_password_user(self, raw_password):
+        self.password = make_password(raw_password)
+        self._password = raw_password
+    
+    def check_password_user(self, raw_password):
+        return check_password(raw_password, self.password)

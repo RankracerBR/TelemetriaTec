@@ -40,12 +40,16 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_extensions",
     
+    # Cors
+    'corsheaders',
+    
     # Apps
     "signalmeasure",
     "users",
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -53,9 +57,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    
-    # Cors
-    'corsheaders.middleware.CorsMiddleware'
 ]
 
 ROOT_URLCONF = "configs.urls"
@@ -111,6 +112,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Passord Hahsers argon2
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.Argon2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
+    "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/

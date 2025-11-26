@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import SignalMeasure, SignalCableMeasure
+from .models import SignalCableMeasure, SignalMeasure
 
 
 class SignalMeasureSerializer(serializers.ModelSerializer):

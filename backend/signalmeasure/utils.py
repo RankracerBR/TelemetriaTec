@@ -1,14 +1,13 @@
-from scapy.all import *
-from scapy.layers.dot11 import Dot11Beacon, RadioTap
-from scapy.sendrecv import sniff
-from scapy.plist import PacketList
-
-from pythonping import ping
-from typing import Optional, Tuple, Dict, Any
-
 import subprocess
+from typing import Any, Dict, Optional, Tuple
+
 import netifaces
 import speedtest
+from pythonping import ping
+from scapy.all import *
+from scapy.layers.dot11 import Dot11Beacon, RadioTap
+from scapy.plist import PacketList
+from scapy.sendrecv import sniff
 
 from .models import SignalCableMeasure, SignalMeasure
 
@@ -37,27 +36,18 @@ class ConnectionDetails:
     def measure_transfer_rate(self) -> Tuple[Optional[float], Optional[float]]:
         st = speedtest.Speedtest()
         
-        # Encontra o melhor servidor
-        server = st.get_best_server()
-        print(f"Testando contra: {server['name']} - {server['sponsor']}") # TODO: REMOVE PRINTS
-        
         # Mede download e upload
-        print("Medindo download...")
         download_bps = st.download()
-        
-        print("Medindo upload...")
         upload_bps = st.upload()
         
         # Converte para Mbps
         download_mbps = download_bps / 1_000_000
         upload_mbps = upload_bps / 1_000_000
-        
-        print(f"Resultado: Download={download_mbps:.2f} Mbps, Upload={upload_mbps:.2f} Mbps")
-        
+
         return download_mbps, upload_mbps
 
     def get_connection_type(self) -> str:
-        gateways = self.gateway
+        gateways = self.gateways
         default_gateway = gateways.get('default', {})
 
         if netifaces.AF_INET in default_gateway:
