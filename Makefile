@@ -1,6 +1,7 @@
 # Makefile for Django + PostgreSQL Docker project
+DOCKER_COMPOSE ?= docker-compose
 
-.PHONY: help build up down restart logs shell web-shell db-shell test migrate makemigrations collectstatic createsuperuser clean destroy
+.PHONY: help build up down up-force-recreate restart logs shell web-shell db-shell test migrate makemigrations collectstatic createsuperuser clean destroy
 
 # Default environment
 ENV ?= development
@@ -44,6 +45,13 @@ up-build:
 # Stop and remove containers
 down:
 	docker-compose down
+
+up-force-recreate:
+	@echo "=> Parando e removendo container web (se existir)"
+	-$(DOCKER_COMPOSE) stop web
+	-$(DOCKER_COMPOSE) rm -f web
+	@echo "=> Rebuild e up do serviço web"
+	$(DOCKER_COMPOSE) up -d --build web
 
 # Restart services
 restart:
