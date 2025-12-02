@@ -12,7 +12,7 @@ from .serializers import SignalCableMeasureSerializer, SignalMeasureSerializer
 from .utils import SignalMeasureCableUtils, SignalMeasureUtils
 
 
-class SignalAPICable(viewsets.GenericViewSet):
+class SignalAPICableView(viewsets.GenericViewSet):
     # permission_classes = [permissions.IsAuthenticated]
     
     signal_cable_utils = SignalMeasureCableUtils
@@ -80,7 +80,7 @@ class SignalAPICable(viewsets.GenericViewSet):
         return Response(serializer.data)
 
 
-class SignalMeasureAPI(viewsets.GenericViewSet):
+class SignalMeasureAPIView(viewsets.GenericViewSet):
     # permission_classes = [permissions.IsAuthenticated]
 
     signal_utils = SignalMeasureUtils
