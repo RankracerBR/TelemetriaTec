@@ -31,21 +31,27 @@ class UserAPIView(ViewSet):
 
     @action(detail=False, methods=["post"])
     def login(self, request):
-        username = request.META.get("HTTP_X_NAME")
-        email = request.META.get("HTTP_X_EMAIL")
-        password = request.META.get("HTTP_X_PASSWORD")
+        email = request.data.get("email")
+        password = request.data.get("password")
 
-        if not username and email and password:
+        if not email or not password:
             return Response({
-                "Erro": "Por favor, preenchar os campos obrigatórios"
-            })
-
+                "detail": "Campos obrigatórios faltando."}, 
+                status=400
+            )
         try:
-            user = User.objects.get(name=username)
+            user = User.objects.get(email=email)
         except User.DoesNotExist:
             raise exceptions.AuthenticationFailed('Usuário não encontrado')
+        if not user.check_password_user(password):
+            raise exceptions.AuthenticationFailed('Senha incorreta')
 
-        return (user, None)
+        refresh = RefreshToken.for_user(user)
+
+        return Response({
+            "refresh": str(refresh),
+            "access": str(refresh.access_token)
+        }, status=200)
 
     @action(detail=False, methods=["post"])
     def logout(self, request):

@@ -4,28 +4,24 @@ from .models import User
 
 
 class UserSerializer(ModelSerializer):
-    password2 = CharField(style={"input_type": "password"}, write_only=True)
+    password2 = CharField(write_only=True)
 
     class Meta:
         model = User
-        fields = "__all__"
+        fields = ["username", "full_name", "email", "password", "password2"]
         extra_kwargs = {
             "password": {"write_only": True}
         }
-        read_only_fields = ["id"]
 
     def validate(self, attrs):
         if attrs["password"] != attrs["password2"]:
-            raise ValidationError({
-                "senha": "A senha tem que ser a mesma para os dois campos"
-            })
+            raise ValidationError({"password": "Passwords must match"})
         return attrs
 
     def create(self, validated_data):
-        user = User.objects.create(
-            name=validated_data["name"],
-            last_name=validated_data["last_name"],
-            email=validated_data["email"],
-            password=validated_data["password"]
-        )
+        validated_data.pop("password2")
+        password = validated_data.pop("password")
+        user = User(**validated_data)
+        user.set_password(password)  # correto!
+        user.save()
         return user

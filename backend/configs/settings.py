@@ -43,7 +43,6 @@ INSTALLED_APPS = [
 
   	# Token authentication
     'rest_framework_simplejwt.token_blacklist',
-    'user_auth',
 
     # Cors
     'corsheaders',
@@ -156,3 +155,5 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }
+
+AUTH_USER_MODEL = "users.User"
