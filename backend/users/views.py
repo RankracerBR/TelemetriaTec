@@ -56,17 +56,27 @@ class UserAPIView(ViewSet):
     @action(detail=False, methods=["post"])
     def logout(self, request):
         try:
-            refresh_token = request.data["refresh_token"]
+            refresh_token = request.data.get("refresh_token")
+            if not refresh_token:
+                return Response(
+                    {"detail": "refresh_token inválido"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             token = RefreshToken(refresh_token)
             token.blacklist()
-
-            return Response(status=status.HTTP_205_RESET_CONTENT)
+            return Response(
+                {"detail": "Logout realizado com sucesso!"},
+                status=status.HTTP_205_RESET_CONTENT
+            )
         except Exception as e:
-            return Response(e, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                "detail": str(e)}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
     @action(detail=False, methods=["post"])
     def reset_password(self, request):
-        email = request.data['data']
+        email = request.data.get('email')
         user = User.objects.filter(email__iexact=email).first()
 
         if not user:
@@ -76,9 +86,9 @@ class UserAPIView(ViewSet):
 
         token = PasswordResetTokenGenerator().make_token(user)
         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-        
+
         reset_link = f"http://example-front/rest-password-confirm/{uidb64}/{token}" # TODO: MUDAR PARA URL REAL
- 
+
         send_mail(
             subject="Redefinir senha",
             message=f"Link para redefinição da sua senha: {reset_link}",

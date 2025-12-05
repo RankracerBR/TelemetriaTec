@@ -1,45 +1,83 @@
 from django.urls import reverse
+from django.test import TestCase
+from django.core import mail
 
-from rest_framework.test import (
-    APITestCase, 
-    APIRequestFactory, 
-    force_authenticate
-)
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
+from rest_framework.test import APIClient
 
 
-class UserAPITestCase(APITestCase):
+class UserAPITestCase(TestCase):
     """ 
     Test class to verify the user endpoints
     """
     def setUp(self):
-        self.factory = APIRequestFactory()
-        self.user_token = RefreshToken()
+        self.client = APIClient()
+        self.user_data = {
+            "username": "augustopontesmcp",
+            "full_name": "Augusto Mello. C",
+            "email": "example123@gmail.com",
+            "password": "testing-1234",
+            "password2": "testing-1234",
+        }
+        self.login_data = {
+            "email": "example123@gmail.com",
+            "password": "testing-1234",
+        }
+
+        # self.user_token = RefreshToken()
         self.url_register = reverse("userapiview-register")
         self.url_login = reverse("userapiview-login")
         self.url_logout = reverse("userapiview-logout")
-        # self.url_reset_password = reverse('')
+        self.url_reset_password = reverse('userapiview-reset-password')
 
-    def test_register_and_login_flow(self):
-        register_data = {
-            "username": "augustopontes",
-            "full_name": "Augusto Mello",
-            "email": "novoemail@gmail.com",
-            "password": "testing-123",
-            "password2": "testing-123",
-        }
-        response = self.client.post(self.url_register, register_data, format="json")
+    def test_create_user(self):
+        response = self.client.post(
+            self.url_register, 
+            self.user_data, 
+            format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        login_data = {
-            "email": "novoemail@gmail.com",
-            "password": "testing-123",
-        }
-        response = self.client.post(self.url_login, login_data, format="json")
+
+    def test_login_user(self):
+        self.client.post(self.url_register, self.user_data, format="json")
+        response = self.client.post(
+            self.url_login, 
+            self.login_data, 
+            format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_logout(self):
-        ...
+        # register + login
+        self.client.post(self.url_register, self.user_data, format="json")
+        login_response = self.client.post(self.url_login, self.login_data, format="json")
+        refresh = login_response.data["refresh"]
+        access = login_response.data["access"]
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {access}")
+        logout_response = self.client.post(
+            self.url_logout,
+            {"refresh_token": refresh},
+            format="json"
+        )
+        print("LOGOUT:", logout_response.data)
+        self.assertEqual(logout_response.status_code, 205)
 
-    def test_reset_password(self):
-        ...
+    # INCOMPLETE
+    # def test_reset_password(self):
+    #     self.client.post(self.url_register, self.user_data, format="json")
+
+    #     response = self.client.post(
+    #         self.url_reset_password,
+    #         {"data": self.user_data["email"]},
+    #         format="json"
+    #     )
+
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertEqual(
+    #         response.data["detail"],
+    #         "E-mail de recuperação enviado."
+    #     )
+    #     self.assertEqual(len(mail.outbox), 1)
+    #     self.assertEqual(mail.outbox[0].to, [self.user_data["email"]])
+    #     self.assertIn("rest-password-confirm", mail.outbox[0].body)
