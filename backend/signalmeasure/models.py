@@ -6,14 +6,18 @@ class SignalCableMeasure(models.Model):
     transfer_rate_download = models.FloatField(
         verbose_name="Taxa de transferência download(Cabeada)",
         help_text="Taxa de transferência download(Cabeada)",
-        blank=True, null=True
+        blank=True,
+        null=True,
     )
     transfer_rate_upload = models.FloatField(
         verbose_name="Taxa de transferência upload(Cabeada)",
         help_text="Taxa de transferência upload(Cabeada)",
-        blank=True, null=True
+        blank=True,
+        null=True,
     )
-    connection_type = models.CharField(verbose_name="Tipo Conexão", blank=True, null=True)
+    connection_type = models.CharField(
+        verbose_name="Tipo Conexão", blank=True, null=True
+    )
     timestamp = models.DateField(verbose_name="Horario do teste", auto_now=True)
 
 
@@ -23,23 +27,26 @@ class SignalMeasure(models.Model):
     )  # dBm
     frequency = models.FloatField(
         verbose_name="Frequência",
-        help_text="Frequência em MHz ou GHZ", null=True, blank=True
+        help_text="Frequência em MHz ou GHZ",
+        null=True,
+        blank=True,
     )  # 2.4 GHZ or 5GHz
     period = models.FloatField(
         verbose_name="Período",
-        help_text="Período de medição ou latência em segundos", 
-        null=True, blank=True
+        help_text="Período de medição ou latência em segundos",
+        null=True,
+        blank=True,
     )
     latency = models.FloatField(
         verbose_name="Latência", help_text="Medição da latência(Não cabeada)"
     )
     transfer_rate_download = models.FloatField(
-        verbose_name="Taxa de transferência download", 
-        help_text="Taxa de transferência download(Não cabeada)"
+        verbose_name="Taxa de transferência download",
+        help_text="Taxa de transferência download(Não cabeada)",
     )
     transfer_rate_upload = models.FloatField(
         verbose_name="Taxa de transferência upload",
-        help_text="Taxa de transferência upload(Não cabeada)"
+        help_text="Taxa de transferência upload(Não cabeada)",
     )
     ssid = models.CharField(
         verbose_name="SSID", max_length=100, blank=True, null=True

@@ -20,10 +20,10 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
-    
+
     def set_password_user(self, raw_password):
         self.password = make_password(raw_password)
         self._password = raw_password
-    
+
     def check_password_user(self, raw_password):
         return check_password(raw_password, self.password)

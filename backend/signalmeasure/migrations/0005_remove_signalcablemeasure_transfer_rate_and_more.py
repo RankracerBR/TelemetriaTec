@@ -6,38 +6,56 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('signalmeasure', '0004_alter_signalcablemeasure_connection_type_and_more'),
+        ("signalmeasure", "0004_alter_signalcablemeasure_connection_type_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='signalcablemeasure',
-            name='transfer_rate',
+            model_name="signalcablemeasure",
+            name="transfer_rate",
         ),
         migrations.RemoveField(
-            model_name='signalmeasure',
-            name='transfer_rate',
+            model_name="signalmeasure",
+            name="transfer_rate",
         ),
         migrations.AddField(
-            model_name='signalcablemeasure',
-            name='transfer_rate_download',
-            field=models.FloatField(blank=True, help_text='Taxa de transferência download(Cabeada)', null=True, verbose_name='Taxa de transferência download(Cabeada)'),
+            model_name="signalcablemeasure",
+            name="transfer_rate_download",
+            field=models.FloatField(
+                blank=True,
+                help_text="Taxa de transferência download(Cabeada)",
+                null=True,
+                verbose_name="Taxa de transferência download(Cabeada)",
+            ),
         ),
         migrations.AddField(
-            model_name='signalcablemeasure',
-            name='transfer_rate_upload',
-            field=models.FloatField(blank=True, help_text='Taxa de transferência upload(Cabeada)', null=True, verbose_name='Taxa de transferência upload(Cabeada)'),
+            model_name="signalcablemeasure",
+            name="transfer_rate_upload",
+            field=models.FloatField(
+                blank=True,
+                help_text="Taxa de transferência upload(Cabeada)",
+                null=True,
+                verbose_name="Taxa de transferência upload(Cabeada)",
+            ),
         ),
         migrations.AddField(
-            model_name='signalmeasure',
-            name='transfer_rate_download',
-            field=models.FloatField(default=1, help_text='Taxa de transferência download(Não cabeada)', verbose_name='Taxa de transferência download'),
+            model_name="signalmeasure",
+            name="transfer_rate_download",
+            field=models.FloatField(
+                default=1,
+                help_text="Taxa de transferência download(Não cabeada)",
+                verbose_name="Taxa de transferência download",
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='signalmeasure',
-            name='transfer_rate_upload',
-            field=models.FloatField(default=1, help_text='Taxa de transferência upload(Não cabeada)', verbose_name='Taxa de transferência upload'),
+            model_name="signalmeasure",
+            name="transfer_rate_upload",
+            field=models.FloatField(
+                default=1,
+                help_text="Taxa de transferência upload(Não cabeada)",
+                verbose_name="Taxa de transferência upload",
+            ),
             preserve_default=False,
         ),
     ]

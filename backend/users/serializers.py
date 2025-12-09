@@ -1,4 +1,4 @@
-from rest_framework.serializers import ModelSerializer, CharField, ValidationError
+from rest_framework.serializers import CharField, ModelSerializer, ValidationError
 
 from .models import User
 
@@ -9,9 +9,7 @@ class UserSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = ["username", "full_name", "email", "password", "password2"]
-        extra_kwargs = {
-            "password": {"write_only": True}
-        }
+        extra_kwargs = {"password": {"write_only": True}}
 
     def validate(self, attrs):
         if attrs["password"] != attrs["password2"]:
