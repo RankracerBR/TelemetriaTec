@@ -19,7 +19,7 @@ class UserAPIView(ViewSet):
 
     user_serializer = UserSerializer
 
-    @action(detail=False, methods=["post"])
+    @action(detail=False, methods=["post"]) # TODO: ENVIAR EMAIL DE CONFIRMAÇÃO PARA O USUÁRIO
     def register(self, request):
         serializer = self.user_serializer(data=request.data)
         if serializer.is_valid():
@@ -68,15 +68,15 @@ class UserAPIView(ViewSet):
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=["post"])
-    def reset_password(self, request):
+    @action(detail=False, methods=["post"]) # TODO: FAZER O USUÁRIO DESLOGAR DA CONTA DEPOIS DE MUDAR A SENHA
+    def send_email_reset_password(self, request):
         email = request.data.get("email")
         user = User.objects.filter(email__iexact=email).first()
 
         if not user:
             return Response(
-                {"detail": "Se esse e-mail existir, será enviado por um link"},
-                status=status.HTTP_200_OK,
+                {"detail": "Email de usuário não encontrado"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         token = PasswordResetTokenGenerator().make_token(user)
@@ -90,3 +90,14 @@ class UserAPIView(ViewSet):
             from_email="no-reply@email.com",
             recipient_list=[user.email],
         )
+        
+        return Response(
+            {"detail": "Email de mudança de senha enviado com sucesso!"}
+        )
+
+    @action(detail=False, methods=["post"])
+    def reset_password(self, request):
+        password = request.data.get('password')
+        
+        generate_new_password = ...
+        
