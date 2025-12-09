@@ -2,6 +2,8 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import send_mail
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_str
+
 from rest_framework import exceptions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -9,19 +11,19 @@ from rest_framework.viewsets import ViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
-from .serializers import UserSerializer
+from .serializers import UserSerializer, ResetPasswordSerializer
 
 
 class UserAPIView(ViewSet):
     """
     This class makes the logic to manage the user
     """
-
-    user_serializer = UserSerializer
+    user_serializer_class = UserSerializer
+    password_serializer_class = ResetPasswordSerializer
 
     @action(detail=False, methods=["post"]) # TODO: ENVIAR EMAIL DE CONFIRMAÇÃO PARA O USUÁRIO
     def register(self, request):
-        serializer = self.user_serializer(data=request.data)
+        serializer = self.user_serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(
@@ -96,8 +98,30 @@ class UserAPIView(ViewSet):
         )
 
     @action(detail=False, methods=["post"])
-    def reset_password(self, request):
-        password = request.data.get('password')
+    def reset_password(self, request, uidb64=None, token=None):
+        serializer = self.password_serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
         
-        generate_new_password = ...
+        new_password = data['new_password']
+        confirm_password = data['confirm_password']
         
+        if new_password != confirm_password:
+            return Response({"error": "Passwords do not match"}, status=400)
+        
+        try:
+            uid = force_str(urlsafe_base64_encode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+        
+        if user is None or not PasswordResetTokenGenerator().check_token(user, token):
+            return Response({
+                "error": "Token inválido"}, 
+                status=status.HTTP_400_BAD_REQUEST
+                )
+        
+        user.set_password(new_password)
+        user.save()
+        
+        return Response({"sucesso": "Senha atualizada com sucesso!"})
